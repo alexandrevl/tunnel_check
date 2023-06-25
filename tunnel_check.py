@@ -33,6 +33,7 @@ def create_tunnel(port, ssh_user, ssh_host):
 
 def main():
     try:
+        last_ssid_check = False
         port = 8080
         ssh_user = 'ubuntu'
         ssh_host = '144.22.144.218'
@@ -40,6 +41,7 @@ def main():
 
         while True:
             timestamp = datetime.now().strftime('%H:%M:%S')
+            ssid_check = check_wifi()
             
             if not is_tunnel_working(port):
                 is_working = False
@@ -53,22 +55,24 @@ def main():
                     #     print(f'[{timestamp}] Location set to Automatic')
                     print(f'{Fore.RED}[{timestamp}] Failed to create tunnel.{Style.RESET_ALL}')
             else:
+                if ssid_check != last_ssid_check & ssid_check:
+                    change_bb_location()
                 print(f'{Fore.GREEN}{Style.BRIGHT}[{timestamp}] Tunnel is working.{Style.RESET_ALL}', end='\r')
                 is_working = True
+            last_ssid_check = ssid_check
 
             time.sleep(3)  # Wait for X seconds before checking again
     except KeyboardInterrupt:
         timestamp = datetime.now().strftime('%H:%M:%S')
         kill_tunnel(port)
-        back_location = change_location('Automatic')
-        if back_location:
-            print(f'{Fore.GREEN}[{timestamp}] Location set to Automatic{Style.RESET_ALL}')
+        change_automatic_location()
         print(f'[{timestamp}] Bye!')
 
-def check_wifi():
+def check_wifi(ssid_target = "88200Wireless-d"):
     COMMAND = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep SSID | tail -1 | awk '{print $2}'"
     SSID = subprocess.check_output(COMMAND,shell = True).decode("utf-8").strip()
-    if (SSID == "88200Wireless-d"):
+    if (SSID == ssid_target):
+    # if (SSID == "hNet"):
         return True
     else:
         return False
@@ -91,20 +95,20 @@ def change_location(param_location):
 
 def change_bb_location():
     timestamp = datetime.now().strftime('%H:%M:%S')
-    bb_wireless = check_wifi()
-    if bb_wireless:
-        bb_location_settled = get_location('BB')
-        if not bb_location_settled:
-            print(f'{Fore.GREEN}[{timestamp}] BB Wireless detected and changing location...{Style.RESET_ALL}')
-            changed = change_location('BB')
-            if changed:
-                print(f'{Fore.GREEN}[{timestamp}] Location set to BB{Style.RESET_ALL}')
-            else:
-                print(f'{Fore.RED}[{timestamp}] Failed to change to BB location{Style.RESET_ALL}')
-        else:
-            print(f'{Fore.GREEN}[{timestamp}] Already in BB location{Style.RESET_ALL}')
+    changed = change_location('BB')
+    if changed:
+        print(f'{Fore.GREEN}[{timestamp}] Location set to BB{Style.RESET_ALL}')
     else:
-        print(f'{Fore.YELLOW}[{timestamp}] BB Wireless not detected{Style.RESET_ALL}')
+        print(f'{Fore.RED}[{timestamp}] Failed to change to BB location{Style.RESET_ALL}')
+
+def change_automatic_location():
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    changed = change_location('Automatic')
+    if changed:
+        print(f'{Fore.GREEN}[{timestamp}] Location set to Automatic{Style.RESET_ALL}')
+    else:
+        print(f'{Fore.RED}[{timestamp}] Failed to change to Automatic location{Style.RESET_ALL}')
+
 
 if __name__ == '__main__':
     timestamp = datetime.now().strftime('%H:%M:%S')
