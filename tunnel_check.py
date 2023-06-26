@@ -38,6 +38,7 @@ def main():
         ssh_user = 'ubuntu'
         ssh_host = '144.22.144.218'
         is_working = False
+        interval = 3
 
         while True:
             timestamp = datetime.now().strftime('%H:%M:%S')
@@ -47,8 +48,8 @@ def main():
                 is_working = False
                 print(f'{Fore.YELLOW}[{timestamp}] Tunnel not working. Creating a new one...{Style.RESET_ALL}')
                 if create_tunnel(port, ssh_user, ssh_host):
-                    change_bb_location()
                     print(f'{Fore.YELLOW}[{timestamp}] Tunnel created on port {port} with {ssh_user}@{ssh_host}{Style.RESET_ALL}')
+                    change_bb_location()
                 else:
                     back_location = change_location('Automatic')
                     # if back_location:
@@ -57,11 +58,11 @@ def main():
             else:
                 if ssid_check != last_ssid_check & ssid_check:
                     change_bb_location()
-                print(f'{Fore.GREEN}{Style.BRIGHT}[{timestamp}] Tunnel is working.{Style.RESET_ALL}', end='\r')
+                print(f'{Fore.GREEN}{Style.BRIGHT}[{timestamp}] Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
                 is_working = True
             last_ssid_check = ssid_check
 
-            time.sleep(3)  # Wait for X seconds before checking again
+            time.sleep(interval)  # Wait for X seconds before checking again
     except KeyboardInterrupt:
         timestamp = datetime.now().strftime('%H:%M:%S')
         kill_tunnel(port)
