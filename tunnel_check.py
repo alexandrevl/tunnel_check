@@ -49,7 +49,7 @@ def main():
                 print(f'{Fore.YELLOW}[{timestamp}] Tunnel not working. Creating a new one...{Style.RESET_ALL}')
                 if create_tunnel(port, ssh_user, ssh_host):
                     print(f'{Fore.YELLOW}[{timestamp}] Tunnel created on port {port} with {ssh_user}@{ssh_host}{Style.RESET_ALL}')
-                    change_bb_location()
+                    change_proxy_location()
                 else:
                     back_location = change_location('Automatic')
                     # if back_location:
@@ -57,8 +57,8 @@ def main():
                     print(f'{Fore.RED}[{timestamp}] Failed to create tunnel.{Style.RESET_ALL}')
             else:
                 if ssid_check != last_ssid_check & ssid_check:
-                    change_bb_location()
-                print(f'{Fore.GREEN}{Style.BRIGHT}[{timestamp}] Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
+                    change_proxy_location()
+                print(f'{Fore.GREEN}[{timestamp}] {Style.BRIGHT}Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
                 is_working = True
             last_ssid_check = ssid_check
 
@@ -67,7 +67,7 @@ def main():
         timestamp = datetime.now().strftime('%H:%M:%S')
         kill_tunnel(port)
         change_automatic_location()
-        print(f'[{timestamp}] Bye!')
+        print(f'[{timestamp}] {Style.BRIGHT}Bye!{Style.RESET_ALL}')
 
 def check_wifi(ssid_target = "88200Wireless-d"):
     COMMAND = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep SSID | tail -1 | awk '{print $2}'"
@@ -94,13 +94,13 @@ def change_location(param_location):
     else:
         return False    
 
-def change_bb_location():
+def change_proxy_location():
     timestamp = datetime.now().strftime('%H:%M:%S')
-    changed = change_location('BB')
+    changed = change_location('Proxy')
     if changed:
-        print(f'{Fore.GREEN}[{timestamp}] Location set to BB{Style.RESET_ALL}')
+        print(f'{Fore.GREEN}[{timestamp}] Location set to Proxy{Style.RESET_ALL}')
     else:
-        print(f'{Fore.RED}[{timestamp}] Failed to change to BB location{Style.RESET_ALL}')
+        print(f'{Fore.RED}[{timestamp}] Failed to change to Proxy location{Style.RESET_ALL}')
 
 def change_automatic_location():
     timestamp = datetime.now().strftime('%H:%M:%S')
@@ -113,5 +113,5 @@ def change_automatic_location():
 
 if __name__ == '__main__':
     timestamp = datetime.now().strftime('%H:%M:%S')
-    print(f'{Style.BRIGHT}[{timestamp}] Starting tunnel check. Press Ctrl+C to exit.{Style.RESET_ALL}')
+    print(f'[{timestamp}] {Style.BRIGHT}Starting tunnel check. Press Ctrl+C to exit.{Style.RESET_ALL}')
     main()
