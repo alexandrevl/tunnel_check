@@ -8,7 +8,6 @@ from colorama import Fore, Style
 def is_tunnel_working(port=8080):
     s = socks.socksocket() # Same API as socket.socket in the standard lib
     try: 
-
         s.set_proxy(socks.SOCKS5, "localhost",port)
         s.settimeout(2.0)
 
@@ -44,7 +43,7 @@ def kill_tunnel(port):
         print(f'{Fore.YELLOW}[{timestamp}] Tunnel killed (pid: {ssh_pid}){Style.RESET_ALL}')
 
 def create_tunnel(port, ssh_user, ssh_host):
-    cmd = f'ssh -D {port} -f -C -q -N {ssh_user}@{ssh_host} -o ServerAliveInterval=10 -o ServerAliveCountMax=1 -o ExitOnForwardFailure=True'
+    cmd = f'ssh -D {port} -f -C -q -N {ssh_user}@{ssh_host} -o ServerAliveInterval=30 -o ServerAliveCountMax=1 -o ExitOnForwardFailure=True'
     result = subprocess.run(cmd, shell=True)
     return result.returncode == 0
 
@@ -69,7 +68,7 @@ def main():
                     change_proxy_location()
                     print(f'{Fore.GREEN}[{timestamp}] {Style.BRIGHT}Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
                 else:
-                    back_location = change_location('Automatic')
+                    #change_location('Automatic')
                     print(f'{Fore.RED}[{timestamp}] Failed to create tunnel.{Style.RESET_ALL}')
             else:
                 print(f'{Fore.GREEN}[{timestamp}] {Style.BRIGHT}Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
@@ -128,4 +127,3 @@ if __name__ == '__main__':
     timestamp = datetime.now().strftime('%H:%M:%S')
     print(f'[{timestamp}] {Style.BRIGHT}Starting tunnel check. Press Ctrl+C to exit.{Style.RESET_ALL}')
     main()
-
