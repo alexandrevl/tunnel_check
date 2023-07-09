@@ -1,17 +1,40 @@
+#!python3
+
 import os
 import socks
+import socket
+import requests
 import time
 from datetime import datetime
 import subprocess
 from colorama import Fore, Style
 
+
 def is_tunnel_working(port=8080):
+    try:
+        # set up the SOCKS proxy and test the connection
+        socks.set_default_proxy(socks.SOCKS5, "localhost", port)
+        socket.socket = socks.socksocket
+        response = requests.get("http://google.com")
+        
+        # check the HTTP response status code
+        if response.status_code == 200:
+            return True
+        else:
+            print(f"Unexpected status code: {response.status_code}")
+            return False
+    except requests.exceptions.RequestException as e:
+        # log the exception
+        ##print(f"Error: {str(e)}")
+        return False
+
+def is_tunnel_working_old(port=8080):
     s = socks.socksocket() # Same API as socket.socket in the standard lib
     try: 
         s.set_proxy(socks.SOCKS5, "localhost",port)
         s.settimeout(2.0)
 
-        s.connect(("google.com", 80))
+        s.connect(("8.8.8.8", 53))
 
         request = """GET / HTTP/1.1
         Host: google.com
@@ -64,14 +87,16 @@ def main():
                 kill_tunnel(port)
                 print(f'{Fore.YELLOW}[{timestamp}] Tunnel not working. Creating a new one...{Style.RESET_ALL}')
                 if create_tunnel(port, ssh_user, ssh_host):
-                    print(f'{Fore.GREEN}[{timestamp}] Tunnel created on port {port} with {ssh_user}@{ssh_host}{Style.RESET_ALL}')
                     change_proxy_location()
-                    print(f'{Fore.GREEN}[{timestamp}] {Style.BRIGHT}Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
+                    print(f'{Fore.YELLOW}[{timestamp}] Tunnel created on port {port} with {ssh_user}@{ssh_host}{Style.RESET_ALL}')
+                    print(f'{Fore.YELLOW}[{timestamp}] Tunnel setting up. Wait...{Style.RESET_ALL}', end='\r')
+                    is_working  = True
+\
                 else:
                     #change_location('Automatic')
                     print(f'{Fore.RED}[{timestamp}] Failed to create tunnel.{Style.RESET_ALL}')
             else:
-                print(f'{Fore.GREEN}[{timestamp}] {Style.BRIGHT}Tunnel is working.({interval}s){Style.RESET_ALL}', end='\r')
+                print(f'{Fore.GREEN}[{timestamp}] {Style.BRIGHT}Tunnel is working.({interval}s){Style.RESET_ALL}                   ', end='\r')
                 is_working = True
 
             time.sleep(interval)  # Wait for X seconds before checking again
