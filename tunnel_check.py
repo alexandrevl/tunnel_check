@@ -66,7 +66,7 @@ def kill_tunnel(port):
         print(f'{Fore.YELLOW}[{timestamp}] Tunnel killed (pid: {ssh_pid}){Style.RESET_ALL}')
 
 def create_tunnel(port, ssh_user, ssh_host):
-    cmd = f'ssh -D {port} -f -C -q -N {ssh_user}@{ssh_host} -o ServerAliveInterval=30 -o ServerAliveCountMax=1 -o ExitOnForwardFailure=True'
+    cmd = f'ssh -D {port} -f -C -q -N {ssh_user}@{ssh_host} -o ServerAliveInterval=30 -o ServerAliveCountMax=2 -o ExitOnForwardFailure=True'
     result = subprocess.run(cmd, shell=True)
     return result.returncode == 0
 
@@ -77,7 +77,7 @@ def main():
         ssh_user = 'ubuntu'
         ssh_host = '144.22.144.218'
         is_working = False
-        interval = 5  # Seconds
+        interval = 2  # Seconds
 
         while True:
             timestamp = datetime.now().strftime('%H:%M:%S')
@@ -91,7 +91,6 @@ def main():
                     print(f'{Fore.YELLOW}[{timestamp}] Tunnel created on port {port} with {ssh_user}@{ssh_host}{Style.RESET_ALL}')
                     print(f'{Fore.YELLOW}[{timestamp}] Tunnel setting up. Wait...{Style.RESET_ALL}', end='\r')
                     is_working  = True
-\
                 else:
                     #change_location('Automatic')
                     print(f'{Fore.RED}[{timestamp}] Failed to create tunnel.{Style.RESET_ALL}')
