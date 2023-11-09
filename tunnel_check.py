@@ -14,7 +14,7 @@ def is_tunnel_working(port=8080):
     try:
         socks.set_default_proxy(socks.SOCKS5, "localhost", port)
         socket.socket = socks.socksocket
-        response = requests.get("http://144.22.144.218:8005/", timeout=2)
+        response = requests.get("https://www.google.com/", timeout=2)
         if response.status_code == 200:
             return True
         else:
